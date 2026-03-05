@@ -39,3 +39,24 @@
   width: fit-content;
   max-height: 400px;
 }
+.star-rating {
+  display: flex;
+  flex-direction: row-reverse;
+  justify-content: flex-end;
+}
+.star-rating input[type="radio"] {
+  display: none;
+}
+.star-rating label {
+  cursor: pointer;
+  width: 32px;
+  height: 32px;
+  background-image: url("/static/img/star_empty.png");
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+.star-rating input[type="radio"]:checked ~ label,
+.star-rating label:hover,
+.star-rating label:hover ~ label {
+  background-image: url("/static/img/star_full.png");
+}
