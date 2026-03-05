@@ -32,6 +32,23 @@
           </form>
         </p>
          <h2>Reviews</h2>
+         {% if template_data.average_rating %}
+         <p>
+          <b>Average Rating:</b>
+          {% for i in "12345" %}
+            {% if forloop.counter <= template_data.average_rating %}
+              <img src="{% static 'img/star_full.png' %}" width="40" height="40" alt="full star">
+            {% else %}
+              <img src="{% static 'img/star_empty.png' %}" width="40" height="40" alt="empty star">
+            {% endif %}
+          {% endfor %}
+          ({{template_data.average_rating}} / 5)
+         </p>
+         {% else %}
+         <p>
+          <b>Average Rating:</b> No ratings yet.
+         </p>
+         {% endif %}
         <hr />
         <ul class="list-group">
           {% for review in template_data.reviews %}
@@ -42,6 +59,17 @@
             <h6 class="card-subtitle mb-2 text-muted">
               {{ review.date }}
             </h6>
+            {% if review.rating %}
+            <p>
+              {% for i in "12345" %}
+                {% if forloop.counter <= review.rating %}
+                  <img src="{% static 'img/star_full.png' %}" width="30" height="30" alt="full star">
+                {% else %}
+                  <img src="{% static 'img/star_empty.png' %}" width="30" height="30" alt="empty star">
+                {% endif %}
+              {% endfor %}
+            </p>
+            {% endif %}
             <p class="card-text">
               {{ review.comment }}
             </p>
@@ -67,6 +95,16 @@
                     </b><br /><br />
                   <form method="POST" action="{% url 'movies.create_review' id=template_data.movie.id %}">
                     {% csrf_token %}
+                    <p>
+                      <label>Rating:</label><br/>
+                      <span class="star-rating">
+                        <input type="radio" name="rating" id="star5" value="5"><label for="star5"></label>
+                        <input type="radio" name="rating" id="star4" value="4"><label for="star4"></label>
+                        <input type="radio" name="rating" id="star3" value="3"><label for="star3"></label>
+                        <input type="radio" name="rating" id="star2" value="2"><label for="star2"></label>
+                        <input type="radio" name="rating" id="star1" value="1"><label for="star1"></label>
+                      </span>
+                    </p>
                     <p>
                       <label for="comment">Comment:</label>
                       <textarea name="comment" required class="form-control" id="comment"></textarea>

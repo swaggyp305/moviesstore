@@ -18,10 +18,19 @@ def index(request):
 def show(request, id):
     movie = Movie.objects.get(id=id)
     reviews = Review.objects.filter(movie=movie)
+    rated_reviews = reviews.filter(rating__isnull=False)
+
+    if rated_reviews.exists():
+        avg = sum(r.rating for r in rated_reviews) / rated_reviews.count()
+        average_rating = round(avg, 1)
+    else:
+        average_rating = None
+
     template_data = {}
     template_data['title'] = movie.name
     template_data['movie'] = movie
     template_data['reviews'] = reviews
+    template_data['average_rating'] = average_rating
     return render(request, 'movies/show.html', {'template_data': template_data})
 
 @login_required
@@ -32,6 +41,11 @@ def create_review(request, id):
         review.comment = request.POST['comment']
         review.movie = movie
         review.user = request.user
+
+        rating_val = request.POST.get('rating')
+        if rating_val:
+            review.rating = int(rating_val)
+
         review.save()
         return redirect('movies.show', id=id)
     else:
@@ -51,6 +65,13 @@ def edit_review(request, id, review_id):
     elif request.method == 'POST' and request.POST['comment'] != '':
         review = Review.objects.get(id=review_id)
         review.comment = request.POST['comment']
+
+        rating_val = request.POST.get('rating')
+        if rating_val:
+            review.rating = int(rating_val)
+        else:
+            review.rating = None
+
         review.save()
         return redirect('movies.show', id=id)
     else:
