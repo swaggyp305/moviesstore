@@ -60,6 +60,10 @@ def purchase(request):
         item.order = order
         item.quantity = cart[str(movie.id)]
         item.save()
+        
+        movie.orders_num += int(item.quantity)
+        movie.save()
+        
     request.session['cart'] = {}
     template_data = {}
     template_data['title'] = 'Purchase confirmation'
