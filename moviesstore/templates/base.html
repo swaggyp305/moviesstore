@@ -33,6 +33,12 @@
             </a> 
             <div class="vr bg-white mx-2 d-none d-lg-block"></div>
             {% if user.is_authenticated %}
+				{% if user.is_superuser %}
+					<a class="nav-link" href="{% url 'movies.stats' %}">
+						Statistics
+					</a>
+					<div class="vr bg-white mx-2 d-none d-lg-block"></div>
+				{% endif %}
             <a class="nav-link" href="{% url 'accounts.orders' %}">
               Orders
             </a>

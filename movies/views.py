@@ -15,6 +15,29 @@ def index(request):
     template_data['movies'] = movies
     return render(request, 'movies/index.html', {'template_data': template_data})
 
+def stats(request):
+    
+    movies = Movie.objects.all()
+    mostReview = -1
+    mostOrdered = -1
+    
+    for movie in movies:
+        if mostReview == -1:
+            mostReview = movie
+        elif mostReview.review_num < movie.review_num:
+            mostReview = movie
+            
+        if mostOrdered == -1:
+            mostOrdered = movie
+        elif mostOrdered.orders_num < movie.orders_num:
+            mostOrdered = movie
+    
+    template_data = {}
+    template_data['title'] = 'Statistics'
+    template_data['mostReviewed'] = mostReview
+    template_data['mostOrdered'] = mostOrdered
+    return render(request, 'movies/stats.html', {'template_data': template_data})
+
 def show(request, id):
     movie = Movie.objects.get(id=id)
     reviews = Review.objects.filter(movie=movie)
@@ -41,6 +64,9 @@ def create_review(request, id):
         review.comment = request.POST['comment']
         review.movie = movie
         review.user = request.user
+        
+        movie.review_num += 1
+        movie.save()
 
         rating_val = request.POST.get('rating')
         if rating_val:
@@ -79,7 +105,12 @@ def edit_review(request, id, review_id):
     
 @login_required
 def delete_review(request, id, review_id):
-    review = get_object_or_404(Review, id=review_id,
-        user=request.user)
+    review = get_object_or_404(Review, id=review_id, user=request.user)
+    
+    movie = review.movie
+    movie.review_num -= 1
+    movie.save()
+    
     review.delete()
+
     return redirect('movies.show', id=id)
