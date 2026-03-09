@@ -114,3 +114,23 @@ def delete_review(request, id, review_id):
     review.delete()
 
     return redirect('movies.show', id=id)
+
+def get_most_user_and_comment():
+    reviews = Review.objects.all()
+    count = {}
+    for review in reviews:
+        theuser = review.user
+        if theuser in count.keys():
+            count[theuser] = count.get(theuser) + 1
+        else:
+            count[theuser] = 1
+    
+    most_user = None
+    most_count = 0
+
+    for theuser, thecount in count.items():
+        if thecount > most_count:
+            most_user = theuser
+            most_count = thecount
+    
+    return most_user, most_count
