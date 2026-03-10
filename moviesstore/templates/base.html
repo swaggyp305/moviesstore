@@ -9,6 +9,8 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
     <link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}">
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    {% block head %}
+    {% endblock head %}
   </head>
   <body>
     <!-- Header -->
@@ -28,6 +30,9 @@
             <a class="nav-link" href="{% url 'movies.index' %}">
               Movies
             </a>
+            <a class="nav-link" href="{% url 'cart.popularity_map' %}">
+              Local Popularity Map
+            </a> 
             <a class="nav-link" href="{% url 'cart.index' %}">
               Cart
             </a> 

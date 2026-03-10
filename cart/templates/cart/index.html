@@ -1,7 +1,72 @@
 {% extends 'base.html' %}
+{% block head %}
+<script src="/static/js/map.js"></script>
+<script>
+
+let map;
+async function initMap() {
+    //  Request the needed libraries.
+    const { Map, RenderingType } = (await google.maps.importLibrary('maps'));
+    const { Autocomplete } = await google.maps.importLibrary('places');
+    map = new Map(document.getElementById('map'), {
+        center: { lat: 33.79, lng: -84.40 },
+        zoom: 10,
+        renderingType: RenderingType.VECTOR,
+    });
+    
+    const input = document.getElementById('map-search');
+    const autocomplete = new Autocomplete(input);
+
+    autocomplete.addListener('place_changed', () => {
+        const place = autocomplete.getPlace();
+        if (!place.geometry) return;
+
+        map.panTo(place.geometry.location);
+        map.setZoom(10);
+        
+        document.getElementById('latitude').value = place.geometry.location.lat();
+        document.getElementById('longitude').value = place.geometry.location.lng();
+    });
+}
+initMap();
+</script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  document.getElementById('purchase').addEventListener('click', function(e) {
+      e.preventDefault();
+      const url = "{% url 'cart.purchase' %}";
+      const latitude = document.getElementById('latitude').value;
+      const longitude = document.getElementById('longitude').value;
+      window.location.href = `${url}?latitude=${latitude}&longitude=${longitude}`;
+  });
+});
+</script>
+
+<style>
+  #map-search {
+    width: 100%;
+    padding: 8px;
+    box-sizing: border-box;
+    font-size: 1rem;
+  }
+  #map {
+    height: 50vh;
+    width: 80%;
+  }
+  html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+  }
+</style>
+{% endblock head %}
+
 {% block content %}
 {% load static %}
 {% load cart_filters %}
+<form method = "POST" action="">
+{% csrf_token %}
 <div class="p-3">
   <div class="container">
     <div class="row mt-3">
@@ -39,7 +104,7 @@
             ${{ template_data.cart_total }}
         </a>
         {% if template_data.movies_in_cart|length > 0 %}
-        <a href="{% url 'cart.purchase' %}" class="btn bg-dark text-white mb-2">
+        <a href="{% url 'cart.purchase' %}" class="btn bg-dark text-white mb-2" type="submit" id="purchase">
             Purchase
         </a>
         <a href="{% url 'cart.clear' %}">
@@ -52,4 +117,11 @@
     </div>
   </div>
 </div>
+<input id="latitude" type="text" placeholder="Latitude" readonly="readonly">
+<input id="longitude" type="text" placeholder="Longitude" readonly="readonly">
+
+<input id="map-search" type="text" placeholder="Search location...">
+<div id="map"></div>
+</form>
+
 {% endblock content %}

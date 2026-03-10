@@ -19,5 +19,7 @@ class Item(models.Model):
         on_delete=models.CASCADE)
     movie = models.ForeignKey(Movie,
         on_delete=models.CASCADE)
+    longitude = models.FloatField(default=0.0)
+    latitude = models.FloatField(default=0.0)
     def __str__(self):
         return str(self.id) + ' - ' + self.movie.name

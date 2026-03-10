@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<script src="/static/js/map.js"></script>
+<script>
+let map;
+async function initMap() {
+    const { Map, RenderingType, Circle } = (await google.maps.importLibrary('maps'));
+    const { Autocomplete } = await google.maps.importLibrary('places');
+    const { spherical } = await google.maps.importLibrary('geometry');
+    map = new Map(document.getElementById('map'), {
+        center: { lat: 33.79, lng: -84.40 },
+        zoom: 8,
+        renderingType: RenderingType.VECTOR,
+    });
+    
+    const input = document.getElementById('map-search');
+    const autocomplete = new Autocomplete(input);
+
+    const radiusCircle = new google.maps.Circle({
+        strokeColor: '#ffdd00ff',
+        strokeOpacity: 0.8,
+        strokeWeight: 2,
+        fillColor: '#ffdd00ff',
+        fillOpacity: 0.35,
+        map: map,
+        center: map.center,
+        radius: 80467.2,
+        draggable: true,
+        editable: false,
+    });
+
+    autocomplete.addListener('place_changed', async () => {
+        const place = autocomplete.getPlace();
+        if (!place.geometry) return;
+
+        map.panTo(place.geometry.location);
+        map.setZoom(8);
+
+        radiusCircle.setCenter(place.geometry.location);
+
+        //request for near movies: 
+        const response = await fetch(`/cart/get_movies/?latitude=${place.geometry.location.lat()}&longitude=${place.geometry.location.lng()}`);
+        const data = await response.json();
+        document.getElementById("pop_movie").innerHTML = data.pop_movie;
+        document.getElementById("pop_quant").innerHTML = data.pop_quant;
+    });
+}
+initMap();
+</script>
+
+
+<style>
+  #map-search {
+    width: 100%;
+    padding: 8px;
+    box-sizing: border-box;
+    font-size: 1rem;
+  }
+  #map {
+    height: 50vh;
+    width: 80%;
+  }
+  html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+  }
+</style>
+{% endblock head %}
+
+{% block content %}
+
+<input id="map-search" type="text" placeholder="Search location...">
+<div id="map"></div>
+<h3>Most popular movie in your area: </h3>
+<p id="pop_movie">Enter a Location!</p>
+<h3>Quantity: </h3>
+<p id="pop_quant">N/A</p>
+
+
+{% endblock content %}
